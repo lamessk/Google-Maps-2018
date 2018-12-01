@@ -422,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             }
             case R.id.action_chatroom_leave:{
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
             }
             default:{
