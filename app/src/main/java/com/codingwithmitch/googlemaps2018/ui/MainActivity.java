@@ -429,6 +429,11 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             }
 
+            case R.id.action_rent: {
+                startActivity(new Intent(this, RentOutActivity.class));
+                return true;
+            }
+
             case R.id.action_history: {
 
 
@@ -450,15 +455,6 @@ public class MainActivity extends AppCompatActivity implements
         }
 
     }
-
-    /*
-    private void showDialog(){
-        mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideDialog(){
-        mProgressBar.setVisibility(View.GONE);
-    }*/
 
 
 }
