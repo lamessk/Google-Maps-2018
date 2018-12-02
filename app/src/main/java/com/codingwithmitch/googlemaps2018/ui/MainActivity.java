@@ -440,7 +440,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             case R.id.action_payment: {
-
+                startActivity(new Intent(this, CreditCardActivity.class));
+                return true;
 
             }
 
