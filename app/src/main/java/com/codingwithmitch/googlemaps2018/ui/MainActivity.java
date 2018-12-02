@@ -416,13 +416,12 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.action_history: {
 
-
+                return true;
             }
 
             case R.id.action_payment: {
                 startActivity(new Intent(this, CreditCardActivity.class));
                 return true;
-
             }
 
             case R.id.action_sign_out: {
