@@ -36,16 +36,28 @@
             android:inputType="textPostalAddress" />
 
         <EditText
-            android:id="@+id/rentDescription"
-            android:layout_width="match_parent"
+            android:id="@+id/rentPrice"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/rentAddressField"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="8dp"
             android:ems="10"
-            android:hint="Optional Description"
-            android:inputType="textMultiLine" />
+            android:hint="Price Per Day"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/rentDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rentPrice"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="Availability: 9am - 5pm"
+            android:inputType="text" />
 
         <Button
             android:id="@+id/rentButton"
