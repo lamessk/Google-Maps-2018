@@ -35,9 +35,12 @@ import android.widget.Toast;
 
 
 import com.codingwithmitch.googlemaps2018.R;
+import com.codingwithmitch.googlemaps2018.UserClient;
+import com.codingwithmitch.googlemaps2018.adapters.CustomInfoWindowAdapter;
 import com.codingwithmitch.googlemaps2018.adapters.UserRecyclerAdapter;
 import com.codingwithmitch.googlemaps2018.models.ClusterMarker;
 import com.codingwithmitch.googlemaps2018.models.MyItem;
+import com.codingwithmitch.googlemaps2018.models.ParkingSpot;
 import com.codingwithmitch.googlemaps2018.models.PolylineData;
 import com.codingwithmitch.googlemaps2018.models.User;
 import com.codingwithmitch.googlemaps2018.models.UserLocation;
@@ -52,8 +55,20 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
@@ -84,20 +99,22 @@ public class UserListFragment extends Fragment implements
     //private ImageView mGps;
 
 
+
     //vars
+    private FirebaseFirestore mDb;
     private ArrayList<User> mUserList = new ArrayList<>();
-    private ArrayList<UserLocation> mUserLocations = new ArrayList<>();
-    //private UserRecyclerAdapter mUserRecyclerAdapter;
+    private ArrayList<ParkingSpot> mParkingSpots = new ArrayList<>();
+    private ArrayList<UserLocation> mUserPos = new ArrayList<>();
     private GoogleMap mGoogleMap;
     private LatLngBounds mMapBoundary;
     private UserLocation mUserPosition;
     private ClusterManager<MyItem> mClusterManager;
-    //private MyClusterManagerRenderer mClusterManagerRenderer;
     private ArrayList<MyItem> mClusterMarkers = new ArrayList<>();
     private GeoApiContext mGeoApiContext = null;
     private ArrayList<PolylineData> mPolylinesData = new ArrayList<>();
     private Marker mSelectedMarker = null;
     private ArrayList<Marker> mTripMarkers = new ArrayList<>();
+    private ListenerRegistration mUserListEventListener;
 
     public static UserListFragment newInstance() {
         return new UserListFragment();
@@ -108,7 +125,8 @@ public class UserListFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mUserList = getArguments().getParcelableArrayList(getString(R.string.intent_user_list));
-            mUserLocations = getArguments().getParcelableArrayList(getString(R.string.intent_user_locations));
+            mParkingSpots = getArguments().getParcelableArrayList(getString(R.string.intent_user_locations));
+            mUserPos = getArguments().getParcelableArrayList("intent_user_location");
         }
     }
 
@@ -251,40 +269,32 @@ public class UserListFragment extends Fragment implements
         if (mGoogleMap != null) {
 
             resetMap();
+            mGoogleMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(getContext()));
 
             if (mClusterManager == null) {
                 mClusterManager = new ClusterManager<MyItem>(getActivity().getApplicationContext(), mGoogleMap);
+
+                mGoogleMap.setOnCameraIdleListener(mClusterManager);
+                //mGoogleMap.setOnMarkerClickListener(mClusterManager);
             }
 
-            for (UserLocation userLocation : mUserLocations) {
+            for (ParkingSpot parkingSpot : mParkingSpots) {
 
-                Log.d(TAG, "addMapMarkers: location: " + userLocation.getGeo_point().toString());
+                Log.d(TAG, "addMapMarkers: location: " + parkingSpot.getGeo_point().toString());
                 try {
-                    /*
-                    String snippet = "";
-                    if(userLocation.getUser().getUser_id().equals(FirebaseAuth.getInstance().getUid())){
-                        snippet = "This is you";
-                    }
-                    else{
-                        snippet = "Determine route to " + userLocation.getUser().getUsername() + "?";
-                    }
 
-                    int avatar = R.drawable.cartman_cop; // set the default avatar
-                    try{
-                        avatar = Integer.parseInt(userLocation.getUser().getAvatar());
-                    }catch (NumberFormatException e){
-                        Log.d(TAG, "addMapMarkers: no avatar for " + userLocation.getUser().getUsername() + ", setting default.");
-                    }*/
+                    String title = parkingSpot.getpUserID().getUsername() + "'s Parking Stall";
+                    String snippet = "$" + parkingSpot.getpPrice() + " /day" + "\n"
+                            + "Availability: " + parkingSpot.getpAvailability();
 
-                    String snippet = "";
                     MyItem newClusterMarker = new MyItem(
-                            userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude(),
-                            userLocation.getUser().getUsername(),
+                            parkingSpot.getGeo_point().getLatitude(), parkingSpot.getGeo_point().getLongitude(),
+                            title,
                             snippet
                     );
 
                     mClusterManager.addItem(newClusterMarker);
-                    mClusterMarkers.add(newClusterMarker);
+                    //mClusterMarkers.add(newClusterMarker);
                 } catch (NullPointerException e) {
                     Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage());
                 }
@@ -316,12 +326,7 @@ public class UserListFragment extends Fragment implements
     }
 
     private void setUserPosition() {
-        for (UserLocation userLocation : mUserLocations) {
-            if (userLocation.getUser().getUser_id().equals(FirebaseAuth.getInstance().getUid())) {
-                mUserPosition = userLocation;
-            }
-
-        }
+        mUserPosition = mUserPos.get(0);
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -363,6 +368,7 @@ public class UserListFragment extends Fragment implements
         String searchString = mSearchText.getText().toString();
 
         Geocoder geocoder = new Geocoder(getContext());
+
         List<Address> list = new ArrayList<>();
         try{
             list = geocoder.getFromLocationName(searchString, 1);
@@ -390,13 +396,6 @@ public class UserListFragment extends Fragment implements
         mGoogleMap.addMarker(options);
         
     }
-
-
-    /*private void initUserListRecyclerView() {
-        mUserRecyclerAdapter = new UserRecyclerAdapter(mUserList);
-        mUserListRecyclerView.setAdapter(mUserRecyclerAdapter);
-        mUserListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

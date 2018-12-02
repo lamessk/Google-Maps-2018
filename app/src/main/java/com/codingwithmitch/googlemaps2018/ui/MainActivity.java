@@ -34,6 +34,7 @@ import com.codingwithmitch.googlemaps2018.R;
 import com.codingwithmitch.googlemaps2018.UserClient;
 import com.codingwithmitch.googlemaps2018.adapters.ChatroomRecyclerAdapter;
 import com.codingwithmitch.googlemaps2018.models.Chatroom;
+import com.codingwithmitch.googlemaps2018.models.ParkingSpot;
 import com.codingwithmitch.googlemaps2018.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.codingwithmitch.googlemaps2018.models.UserLocation;
@@ -78,12 +79,12 @@ public class MainActivity extends AppCompatActivity implements
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
     private UserLocation mUserLocation;
-    private ArrayList<UserLocation> mUserLocations = new ArrayList<>();
+    private ArrayList<ParkingSpot> mUserLocations = new ArrayList<>();
     private ArrayList<User> mUserList = new ArrayList<>();
+    private ArrayList<UserLocation> userPos = new ArrayList<>();
     private UserListFragment mUserListFragment;
     private ListenerRegistration mUserListEventListener;
     private ImageView logo;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         logo = (ImageView) findViewById(R.id.logo);
-
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDb = FirebaseFirestore.getInstance();
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements
         mDb.setFirestoreSettings(settings);
 
         CollectionReference usersRef = mDb
-                .collection(getString(R.string.collection_users));
+                .collection("Parking Spots");
 
         mUserListEventListener = usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -122,14 +122,19 @@ public class MainActivity extends AppCompatActivity implements
                         if(queryDocumentSnapshots != null){
 
                             // Clear the list and add all the users again
-                            //mUserList.clear();
-                            //mUserList = new ArrayList<>();
+                            mUserList.clear();
+                            mUserList = new ArrayList<>();
+
+                            getUserDetails();
+                            //mUserList.add(mUserLocation.getUser());
+                            //mUserLocations.add(mUserLocation);
 
                             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                                User user = doc.toObject(User.class);
-                                mUserList.add(user);
-                                getUserLocation(user);
-                                Log.d(TAG, "onEvent: adding user: " + user.toString());
+
+                                ParkingSpot parkingSpot = doc.toObject(ParkingSpot.class);
+                                mUserList.add(parkingSpot.getpUserID());
+                                mUserLocations.add(parkingSpot);
+                                Log.d(TAG, "onEvent: adding user: " + parkingSpot.getpUserID().toString());
                             }
 
                             Log.d(TAG, "onEvent: user list size: " + mUserList.size());
@@ -138,23 +143,6 @@ public class MainActivity extends AppCompatActivity implements
                 });
     }
 
-    private void getUserLocation(User user){
-        //Retreive geopoint for each individual user and put into a list
-
-        DocumentReference locationRef = mDb.collection(getString(R.string.collection_user_locations))
-                .document(user.getUser_id());
-
-        locationRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult().toObject(UserLocation.class) != null ){
-                        mUserLocations.add(task.getResult().toObject(UserLocation.class));
-                    }
-                }
-            }
-        });
-    }
 
     public void inflateUserListFragment(){
 
@@ -162,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(getString(R.string.intent_user_list), mUserList);
         bundle.putParcelableArrayList(getString(R.string.intent_user_locations), mUserLocations);
+        bundle.putParcelableArrayList("intent_user_location", userPos);
         fragment.setArguments(bundle);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -234,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements
 
                     mUserLocation.setGeo_point(geoPoint);
                     mUserLocation.setTimestamp(null);
+                    userPos.add(mUserLocation);
                     saveUserLocation();
                 }
             }
@@ -355,18 +345,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private void initSupportActionBar(){
-        setTitle("Park Shark");
-    }
-
-
     @Override
     public void onClick(View view) {
         switch (view.getId()){
 
-            //case R.id.fab_create_chatroom:{
-            //    newChatroomDialog();
-            //}
         }
     }
 
@@ -382,10 +364,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        //getChatrooms();
         if(checkMapServices()){
             if(mLocationPermissionGranted){
-                //getChatrooms();
                 getUserDetails();
             }
             else{

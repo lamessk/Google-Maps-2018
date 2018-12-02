@@ -14,11 +14,14 @@ public class UserLocation implements Parcelable{
     //If you pass null at insertion, it will automatically insert a timestamp
     private @ServerTimestamp Date timestamp;
     private User user;
+    private String mAddress;
 
-    public UserLocation(GeoPoint geo_point, Date timestamp, User user){
+    public UserLocation(GeoPoint geo_point, Date timestamp, User user, String mAddress){
         this.geo_point = geo_point;
         this.timestamp = timestamp;
         this.user = user;
+        this.mAddress = mAddress;
+
     }
 
     public UserLocation(){
@@ -64,6 +67,10 @@ public class UserLocation implements Parcelable{
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String getmAddress() { return mAddress; }
+
+    public void setmAddress(String mAddress) { this.mAddress = mAddress; }
 
     @Override
     public String toString() {
