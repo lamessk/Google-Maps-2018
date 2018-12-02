@@ -5,6 +5,16 @@ public class ParkingSpot {
     private String pAddress;
     private String pPrice;
     private String pAvailability;
+    private String pUserID;
+
+    public ParkingSpot(String pAddress, String pPrice, String pAvailability, String pUserID) {
+        this.pAddress = pAddress;
+        this.pPrice = pPrice;
+        this.pAvailability = pAvailability;
+        this.pUserID = pUserID;
+    }
+
+    public ParkingSpot() {}
 
     public String getpAddress() {
         return pAddress;
@@ -37,17 +47,6 @@ public class ParkingSpot {
     public void setpUserID(String pUserID) {
         this.pUserID = pUserID;
     }
-
-    private String pUserID;
-
-    public ParkingSpot(String pAddress, String pPrice, String pAvailability, String pUserID) {
-        this.pAddress = pAddress;
-        this.pPrice = pPrice;
-        this.pAvailability = pAvailability;
-        this.pUserID = pUserID;
-    }
-
-    public ParkingSpot() {}
 
 
 }
