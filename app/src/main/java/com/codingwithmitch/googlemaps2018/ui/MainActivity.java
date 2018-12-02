@@ -428,9 +428,6 @@ public class MainActivity extends AppCompatActivity implements
                 inflateUserListFragment();
                 return true;
             }
-            case R.id.action_rent :{
-                return true;
-            }
 
             case R.id.action_history: {
 
@@ -444,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.action_sign_out: {
                 signOut();
+
                 return true;
             }
             default:{
