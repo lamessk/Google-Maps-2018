@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.codingwithmitch.googlemaps2018.R;
 import com.codingwithmitch.googlemaps2018.models.ChatMessage;
+import com.codingwithmitch.googlemaps2018.models.HistoryItem;
 import com.codingwithmitch.googlemaps2018.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -18,15 +19,13 @@ import java.util.ArrayList;
 
 public class ChatMessageRecyclerAdapter extends RecyclerView.Adapter<ChatMessageRecyclerAdapter.ViewHolder>{
 
-    private ArrayList<ChatMessage> mMessages = new ArrayList<>();
+    private ArrayList<HistoryItem> mMessages = new ArrayList<>();
     private ArrayList<User> mUsers = new ArrayList<>();
     private Context mContext;
 
-    public ChatMessageRecyclerAdapter(ArrayList<ChatMessage> messages,
-                                      ArrayList<User> users,
+    public ChatMessageRecyclerAdapter(ArrayList<HistoryItem> messages,
                                       Context context) {
         this.mMessages = messages;
-        this.mUsers = users;
         this.mContext = context;
     }
 
@@ -41,16 +40,10 @@ public class ChatMessageRecyclerAdapter extends RecyclerView.Adapter<ChatMessage
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
-
-        if(FirebaseAuth.getInstance().getUid().equals(mMessages.get(position).getUser().getUser_id())){
-            ((ViewHolder)holder).username.setTextColor(ContextCompat.getColor(mContext, R.color.green1));
-        }
-        else{
-            ((ViewHolder)holder).username.setTextColor(ContextCompat.getColor(mContext, R.color.blue2));
-        }
-
-        ((ViewHolder)holder).username.setText(mMessages.get(position).getUser().getUsername());
-        ((ViewHolder)holder).message.setText(mMessages.get(position).getMessage());
+        ((ViewHolder)holder).username.setTextColor(ContextCompat.getColor(mContext, R.color.green1));
+        ((ViewHolder)holder).username.setText(mMessages.get(position).getAddress());
+        ((ViewHolder)holder).message.setText(mMessages.get(position).getTimestamp().toString());
+        ((ViewHolder)holder).price.setText(mMessages.get(position).getPrice());
     }
 
 
@@ -62,30 +55,16 @@ public class ChatMessageRecyclerAdapter extends RecyclerView.Adapter<ChatMessage
 
     public class ViewHolder extends RecyclerView.ViewHolder
     {
-        TextView message, username;
+        TextView message, username, price;
 
         public ViewHolder(View itemView) {
             super(itemView);
             message = itemView.findViewById(R.id.chat_message_message);
             username = itemView.findViewById(R.id.chat_message_username);
+            price = itemView.findViewById(R.id.chat_price);
         }
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

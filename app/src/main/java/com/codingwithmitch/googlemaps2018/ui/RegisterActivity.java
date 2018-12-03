@@ -46,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        getSupportActionBar().setTitle("Park Shark Registration");
         mEmail = (EditText) findViewById(R.id.input_email);
         mName = (EditText) findViewById(R.id.input_name);
         mAddress = (EditText) findViewById(R.id.input_address);

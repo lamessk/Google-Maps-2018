@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDb = FirebaseFirestore.getInstance();
-        getSupportActionBar().setTitle("Park Shark");  // provide compatibility to all the versions
+        getSupportActionBar().setTitle("Park Shark");
 
         getUsers();
 
@@ -415,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             case R.id.action_history: {
-
+                startActivity(new Intent(this, ChatroomActivity.class));
                 return true;
             }
 
