@@ -200,18 +200,7 @@ public class UserListFragment extends Fragment implements
 
     private void resetSelectedMarker(){
         if(mSelectedMarker != null){
-            //mSelectedMarker.setVisible(true);
-            mClusterManager.removeItem(new MyItem(mSelectedMarker.getPosition().latitude,
-                    mSelectedMarker.getPosition().longitude,
-                    mSelectedMarker.getTitle(),
-                    mSelectedMarker.getSnippet()));
-            for(ParkingSpot parkingSpot : mParkingSpots){
-                if(parkingSpot.getGeo_point().getLatitude() == mSelectedMarker.getPosition().latitude){
-                    mParkingSpots.remove(parkingSpot);
-                    Log.d(TAG, "resetSelectedMarker: removed Spot");
-                }
-
-            }
+            mSelectedMarker.setVisible(true);
             mSelectedMarker = null;
             removeTripMarker();
         }
