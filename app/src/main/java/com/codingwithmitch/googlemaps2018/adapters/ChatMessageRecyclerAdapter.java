@@ -40,6 +40,9 @@ public class ChatMessageRecyclerAdapter extends RecyclerView.Adapter<ChatMessage
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
 
+        ((ViewHolder)holder).username.setTextColor(ContextCompat.getColor(mContext, R.color.blue2));
+
+
         ((ViewHolder)holder).username.setTextColor(ContextCompat.getColor(mContext, R.color.green1));
         ((ViewHolder)holder).username.setText(mMessages.get(position).getAddress());
         ((ViewHolder)holder).message.setText(mMessages.get(position).getTimestamp().toString());
