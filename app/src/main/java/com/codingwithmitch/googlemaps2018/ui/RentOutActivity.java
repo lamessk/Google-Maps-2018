@@ -1,5 +1,6 @@
 package com.codingwithmitch.googlemaps2018.ui;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Parcel;
@@ -9,6 +10,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,6 +52,7 @@ public class RentOutActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rent_out);
+        getSupportActionBar().setTitle("Rent Out Your Own Space!");
 
         mAddress = findViewById(R.id.rentAddressField);
         mPrice = findViewById(R.id.rentPrice);
@@ -128,6 +132,38 @@ public class RentOutActivity extends AppCompatActivity implements View.OnClickLi
                 insertNewParkingSpot();
             }
         }
+    }
+
+    private void signOut(){
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_home: {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+            case R.id.action_sign_out: {
+                signOut();
+                return true;
+            }
+            default:{
+                return super.onOptionsItemSelected(item);
+            }
+        }
+
     }
 
 }
